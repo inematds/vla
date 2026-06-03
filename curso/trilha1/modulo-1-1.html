@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo 1.1 — De LLMs a Robôs que Agem | VLA Course</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 600:'#374151', 700:'#1f2937', 800:'#1a1a2e', 900:'#111827' },
+                        primary: '#f59e0b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .dark body { background-color: #111827; }
+        html:not(.dark) body { background-color: #f8fafc; }
+        html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+        html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+        html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+        html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+        html:not(.dark) .text-neutral-100 { color: #111827; }
+        html:not(.dark) .text-neutral-300 { color: #4b5563; }
+        html:not(.dark) .text-neutral-400 { color: #6b7280; }
+        html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+        html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+        html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+        html:not(.dark) .text-emerald-400 { color: #059669; }
+        html:not(.dark) .text-blue-400 { color: #2563eb; }
+        html:not(.dark) .text-purple-400 { color: #7c3aed; }
+        html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5, 150, 105, 0.12); }
+        html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5, 150, 105, 0.08); }
+        html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5, 150, 105, 0.08); }
+        html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37, 99, 235, 0.12); }
+        html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37, 99, 235, 0.08); }
+        html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124, 58, 237, 0.12); }
+        html:not(.dark) .bg-red-900\/20 { background-color: rgba(220, 38, 38, 0.07); }
+        html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5, 150, 105, 0.25); }
+        html:not(.dark) .border-blue-500\/30 { border-color: rgba(37, 99, 235, 0.25); }
+        html:not(.dark) .border-purple-500\/30 { border-color: rgba(124, 58, 237, 0.25); }
+        html:not(.dark) .border-red-500\/30 { border-color: rgba(220, 38, 38, 0.25); }
+        html:not(.dark) .hover\:border-emerald-500\/50:hover { border-color: rgba(5, 150, 105, 0.4); }
+        html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+        html:not(.dark) .text-primary { color: #a16207; }
+        html:not(.dark) .bg-primary\/10 { background-color: rgba(161, 98, 7, 0.08); }
+        html:not(.dark) .border-primary\/30 { border-color: rgba(161, 98, 7, 0.25); }
+        html:not(.dark) .border-primary\/40 { border-color: rgba(161, 98, 7, 0.25); }
+        html:not(.dark) .text-sky-400 { color: #0369a1; }
+        html:not(.dark) .text-yellow-400 { color: #a16207; }
+        html:not(.dark) .text-red-400 { color: #dc2626; }
+        html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+        html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255, 255, 255, 0.95); }
+        html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+        .dark .border-dark-600 { border-color: #374151; }
+        .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+        @keyframes wf-pulse { 0%,100% { opacity:.55 } 50% { opacity:1 } }
+        @media (prefers-reduced-motion: no-preference) {
+          .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+          .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s}
+          .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+        }
+    </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+    <!-- NAV -->
+    <nav class="fixed top-0 w-full bg-dark-900/95 backdrop-blur border-b border-dark-600 z-50">
+      <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <a href="../../" class="text-primary font-bold text-lg">VLA</a>
+          <span class="text-neutral-500">|</span>
+          <a href="https://inema.club" target="_blank" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="./" class="px-3 py-1.5 rounded text-sm text-emerald-400 bg-emerald-500/20 border border-emerald-500/30 font-medium">Fundamentos</a>
+          <a href="../trilha2/" class="px-3 py-1.5 rounded text-sm text-blue-400 hover:bg-blue-500/10">Técnico</a>
+          <a href="../trilha3/" class="px-3 py-1.5 rounded text-sm text-purple-400 hover:bg-purple-500/10">Avançado</a>
+          <button onclick="document.documentElement.classList.toggle('dark')" class="ml-2 p-2 rounded hover:bg-dark-700 text-neutral-400" title="Alternar tema">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- BREADCRUMB -->
+    <div class="max-w-4xl mx-auto px-4 pt-20">
+        <div class="flex items-center gap-2 text-sm text-neutral-400">
+            <a href="../../" class="hover:text-emerald-400">Início</a>
+            <span>/</span>
+            <a href="./" class="hover:text-emerald-400">Fundamentos</a>
+            <span>/</span>
+            <span class="text-emerald-400">Módulo 1.1</span>
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto px-4 pt-6 pb-16">
+
+        <!-- HEADER -->
+        <header class="mb-12">
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 mb-4">MÓDULO 1.1</span>
+            <h1 class="text-3xl sm:text-4xl font-extrabold mb-4">🌍 De LLMs a Robôs que Agem: O Grande Cenário</h1>
+            <p class="text-lg text-neutral-400 max-w-3xl">A evolução da IA: de modelos que só escrevem texto a agentes que veem o mundo e manipulam objetos físicos. Este módulo monta o mapa mental que sustenta todo o resto do curso.</p>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8">
+                <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600">
+                    <div class="text-xl font-bold text-emerald-400">6</div>
+                    <div class="text-xs text-neutral-400">Tópicos</div>
+                </div>
+                <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600">
+                    <div class="text-xl font-bold text-emerald-400">~45</div>
+                    <div class="text-xs text-neutral-400">Minutos</div>
+                </div>
+                <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600">
+                    <div class="text-xl font-bold text-emerald-400">Básico</div>
+                    <div class="text-xs text-neutral-400">Nível</div>
+                </div>
+                <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600">
+                    <div class="text-xl font-bold text-emerald-400">Teoria</div>
+                    <div class="text-xs text-neutral-400">Tipo</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- HERO SVG: LLM → VLM → VLA -->
+        <div class="rounded-2xl border border-emerald-500/30 bg-dark-900/40 p-3 sm:p-4 mb-12 overflow-hidden">
+            <svg role="img" aria-label="Evolução da IA: de LLM (texto) para VLM (visão e texto) para VLA (ação física)" class="w-full h-auto" viewBox="0 0 760 230" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <pattern id="m11-grid" width="32" height="32" patternUnits="userSpaceOnUse">
+                        <circle cx="1.3" cy="1.3" r="1.3" fill="#34d399" opacity="0.10"/>
+                    </pattern>
+                    <linearGradient id="m11-grad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#10b981"/>
+                    </linearGradient>
+                    <filter id="m11-glow" x="-40%" y="-40%" width="180%" height="180%">
+                        <feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                    <marker id="m11-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#34d399"/></marker>
+                    <marker id="m11-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect width="760" height="230" fill="url(#m11-grid)"/>
+                <text x="380" y="32" text-anchor="middle" fill="#34d399" font-family="Inter,sans-serif" font-size="13" font-weight="600">Evolução: Texto → Visão → Ação Física</text>
+                <line x1="60" y1="135" x2="700" y2="135" stroke="#34d399" stroke-opacity="0.2" stroke-width="2"/>
+                <!-- LLM -->
+                <rect x="40" y="85" width="150" height="60" rx="12" fill="#0e2018" stroke="#34d399" stroke-width="2" stroke-opacity="0.55"/>
+                <text x="115" y="110" text-anchor="middle" fill="#34d399" font-family="Inter,sans-serif" font-size="15" font-weight="600">LLM</text>
+                <text x="115" y="130" text-anchor="middle" fill="#9ca3af" font-family="Inter,sans-serif" font-size="9.5">Texto → Texto</text>
+                <line x1="195" y1="115" x2="275" y2="115" stroke="#34d399" stroke-width="1.8" stroke-opacity="0.5" marker-end="url(#m11-ah)"/>
+                <!-- VLM -->
+                <rect x="285" y="85" width="150" height="60" rx="12" fill="#0e2018" stroke="#34d399" stroke-width="2" stroke-opacity="0.6"/>
+                <text x="360" y="110" text-anchor="middle" fill="#34d399" font-family="Inter,sans-serif" font-size="15" font-weight="600">VLM</text>
+                <text x="360" y="130" text-anchor="middle" fill="#9ca3af" font-family="Inter,sans-serif" font-size="9.5">Imagem+Texto → Texto</text>
+                <line x1="440" y1="115" x2="520" y2="115" stroke="#38bdf8" stroke-width="1.8" stroke-opacity="0.5" marker-end="url(#m11-ahc)"/>
+                <!-- VLA -->
+                <g filter="url(#m11-glow)"><rect x="530" y="80" width="170" height="70" rx="14" fill="#0e2018" stroke="url(#m11-grad)" stroke-width="2.5"/></g>
+                <text x="615" y="108" text-anchor="middle" fill="#34d399" font-family="Inter,sans-serif" font-size="18" font-weight="700">VLA</text>
+                <text x="615" y="128" text-anchor="middle" fill="#9ad6ff" font-family="Inter,sans-serif" font-size="9.5">Imagem+Texto → Ação</text>
+                <!-- dates -->
+                <text x="115" y="170" text-anchor="middle" fill="#6b7280" font-family="Inter,sans-serif" font-size="10">2020–2022</text>
+                <text x="360" y="170" text-anchor="middle" fill="#6b7280" font-family="Inter,sans-serif" font-size="10">2023–2024</text>
+                <text x="615" y="170" text-anchor="middle" fill="#6b7280" font-family="Inter,sans-serif" font-size="10">2024–2026</text>
+                <text x="115" y="190" text-anchor="middle" fill="#34d399" font-family="Inter,sans-serif" font-size="8.5" opacity="0.6">GPT-3, LLaMA</text>
+                <text x="360" y="190" text-anchor="middle" fill="#34d399" font-family="Inter,sans-serif" font-size="8.5" opacity="0.6">GPT-4V, LLaVA</text>
+                <text x="615" y="190" text-anchor="middle" fill="#38bdf8" font-family="Inter,sans-serif" font-size="8.5" opacity="0.6">RT-2, OpenVLA, π0</text>
+            </svg>
+            <p class="text-xs text-neutral-500 text-center mt-2">Diagrama ilustrativo — cada salto adiciona uma modalidade: primeiro visão na entrada, depois ação na saída.</p>
+        </div>
+
+        <!-- TÓPICO 1 -->
+        <section id="topico-1" class="mb-16">
+            <div class="flex items-center gap-4 mb-6">
+                <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl shrink-0">1</span>
+                <h2 class="text-2xl font-bold">🧬 Da linguagem à ação: LLM → VLM → VLA</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed">A progressão de modelos que processam apenas <strong class="text-emerald-400">texto</strong> (LLMs) para modelos que também <strong class="text-emerald-400">veem</strong> (VLMs) e, finalmente, para modelos que <strong class="text-emerald-400">geram ações motoras</strong> no mundo real (VLAs). Cada salto adiciona uma modalidade — entender essa cadeia é o alicerce de tudo que vem depois no curso.</p>
+
+            <div class="bg-gradient-to-br from-emerald-900/30 to-dark-800 rounded-xl border border-emerald-500/30 p-6 mb-6">
+                <h3 class="text-lg font-semibold text-emerald-400 mb-4 flex items-center"><span class="mr-2">🔑</span> As três siglas que você nunca mais vai esquecer</h3>
+                <ul class="space-y-3 text-neutral-300">
+                    <li class="flex items-start gap-3"><span class="text-emerald-400 font-bold mt-0.5">LLM</span><span><strong>Large Language Model.</strong> Processa sequências de tokens textuais. Entra texto, sai texto. Ex.: GPT-3, LLaMA.</span></li>
+                    <li class="flex items-start gap-3"><span class="text-emerald-400 font-bold mt-0.5">VLM</span><span><strong>Vision-Language Model.</strong> Acrescenta um <em>encoder visual</em> para processar imagens junto do texto. Ex.: GPT-4V, LLaVA.</span></li>
+                    <li class="flex items-start gap-3"><span class="text-emerald-400 font-bold mt-0.5">VLA</span><span><strong>Vision-Language-Action.</strong> Estende o VLM com um <em>action head</em> que decodifica tokens em comandos motores contínuos — posição (x,y,z) e rotação do gripper.</span></li>
+                </ul>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-6">
+                <h3 class="text-lg font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Por que isso importa</h3>
+                <p class="text-neutral-300">Sem clareza sobre o que muda entre GPT-4V e RT-2, fica impossível avaliar arquiteturas VLA ou decidir qual modelo usar num projeto real. A diferença não é "mais um recurso" — é uma modalidade nova de saída: <strong class="text-primary">ação</strong>.</p>
+            </div>
+        </section>
+
+        <!-- TÓPICO 2 -->
+        <section id="topico-2" class="mb-16">
+            <div class="flex items-center gap-4 mb-6">
+                <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl shrink-0">2</span>
+                <h2 class="text-2xl font-bold">🪢 O gap entre entender e agir</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed">Existe um abismo entre <strong class="text-emerald-400">compreensão semântica</strong> (saber o que é um copo) e <strong class="text-emerald-400">competência motora</strong> (pegar o copo sem derrubá-lo). VLMs entendem cenas com precisão, mas não traduzem esse entendimento em ações físicas coordenadas. É esse gap que os VLAs existem para fechar.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                    <h4 class="font-bold text-emerald-400 mb-4">✓ O que um VLM já resolve</h4>
+                    <ul class="space-y-3 text-neutral-300 text-sm">
+                        <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Reconhecer que há um copo na mesa</span></li>
+                        <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Descrever a cena em linguagem natural</span></li>
+                        <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Responder "onde está o copo?"</span></li>
+                    </ul>
+                </div>
+                <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                    <h4 class="font-bold text-red-400 mb-4">✗ O que ainda falta (e o VLA ataca)</h4>
+                    <ul class="space-y-3 text-neutral-300 text-sm">
+                        <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Calcular a trajetória do braço até o copo</span></li>
+                        <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Ajustar a força do gripper em tempo real</span></li>
+                        <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Corrigir o movimento quando o copo escorrega</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-6">
+                <h3 class="text-lg font-semibold text-emerald-400 mb-3">Três conceitos para nomear o gap</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                    <div><strong class="text-emerald-400">Grounding</strong><p class="text-neutral-400 mt-1">Ancorar conceitos abstratos em percepções sensoriais concretas.</p></div>
+                    <div><strong class="text-emerald-400">Sim-to-real gap</strong><p class="text-neutral-400 mt-1">Diferença entre desempenho em simulação e no mundo real.</p></div>
+                    <div><strong class="text-emerald-400">Closed-loop control</strong><p class="text-neutral-400 mt-1">Ajustar ações continuamente com base no feedback sensorial.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TÓPICO 3 -->
+        <section id="topico-3" class="mb-16">
+            <div class="flex items-center gap-4 mb-6">
+                <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl shrink-0">3</span>
+                <h2 class="text-2xl font-bold">🏗️ Foundation models para robótica</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed">O paradigma de <strong class="text-emerald-400">foundation models</strong> (pré-treino em larga escala + fine-tuning) aplicado à robótica. Em vez de treinar do zero para cada tarefa e robô, parte-se de um modelo base treinado em dados massivos de múltiplos robôs e ambientes — e depois adapta. É por isso que VLAs se tornaram viáveis.</p>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+                <h3 class="text-lg font-semibold text-blue-400 mb-4 flex items-center"><span class="mr-2">📊</span> Por que o pré-treino transfere tão bem</h3>
+                <ul class="space-y-2 text-neutral-300 text-sm">
+                    <li><strong>Transfer learning</strong> — reaproveita conhecimento de domínios ricos em dados (internet) para domínios escassos (robótica).</li>
+                    <li><strong>Pré-treino multimodal</strong> — combina visão e linguagem numa representação unificada.</li>
+                    <li><strong>Cross-embodiment</strong> — um único modelo controla robôs com morfologias diferentes.</li>
+                </ul>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-6">
+                <h3 class="text-lg font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Dica prática</h3>
+                <p class="text-neutral-300">Representações ricas vindas da internet transferem surpreendentemente bem para controle motor — mesmo com <strong class="text-primary">poucos dados de demonstração</strong>. Na prática: você raramente treina um VLA do zero; você faz fine-tuning de um modelo base.</p>
+            </div>
+        </section>
+
+        <!-- TÓPICO 4 -->
+        <section id="topico-4" class="mb-16">
+            <div class="flex items-center gap-4 mb-6">
+                <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl shrink-0">4</span>
+                <h2 class="text-2xl font-bold">🖐️ Affordances: o que o robô PODE fazer</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed">Conceito da psicologia ecológica de J.J. Gibson adaptado à robótica: <strong class="text-emerald-400">affordances</strong> são as possibilidades de ação que um objeto ou ambiente oferece. Um copo "aforda" ser agarrado; uma porta, ser aberta. Detectar affordances é identificar quais ações são <em>fisicamente viáveis</em> na cena atual.</p>
+
+            <!-- SVG affordance: instrução + cena → ação viável -->
+            <div class="rounded-2xl border border-emerald-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+                <svg role="img" aria-label="Instrução em linguagem mais a cena visual passam por um filtro de viabilidade que só deixa passar ações possíveis" class="w-full h-auto" viewBox="0 0 760 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <pattern id="m11b-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#34d399" opacity="0.10"/></pattern>
+                        <linearGradient id="m11b-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#10b981"/></linearGradient>
+                        <filter id="m11b-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                        <marker id="m11b-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#34d399"/></marker>
+                    </defs>
+                    <rect width="760" height="200" fill="url(#m11b-grid)"/>
+                    <rect x="40" y="40" width="180" height="44" rx="10" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                    <text x="130" y="67" text-anchor="middle" fill="#bfe6ff" font-family="Inter,sans-serif" font-size="13" font-weight="600">"pegue o copo"</text>
+                    <rect x="40" y="116" width="180" height="44" rx="10" fill="#0e2018" stroke="#34d399" stroke-width="2" stroke-opacity="0.6"/>
+                    <text x="130" y="143" text-anchor="middle" fill="#34d399" font-family="Inter,sans-serif" font-size="13" font-weight="600">cena visual</text>
+                    <path d="M220,62 C300,62 300,100 360,100" fill="none" stroke="#34d399" stroke-width="1.8" stroke-opacity="0.5" marker-end="url(#m11b-ah)"/>
+                    <path d="M220,138 C300,138 300,100 360,100" fill="none" stroke="#34d399" stroke-width="1.8" stroke-opacity="0.5" marker-end="url(#m11b-ah)"/>
+                    <g filter="url(#m11b-glow)"><rect x="365" y="72" width="150" height="56" rx="12" fill="#0e2018" stroke="url(#m11b-grad)" stroke-width="2.5"/></g>
+                    <text x="440" y="96" text-anchor="middle" fill="#34d399" font-family="Inter,sans-serif" font-size="13" font-weight="600">filtro de</text>
+                    <text x="440" y="114" text-anchor="middle" fill="#34d399" font-family="Inter,sans-serif" font-size="13" font-weight="600">viabilidade</text>
+                    <path d="M515,100 L590,100" fill="none" stroke="#34d399" stroke-width="1.8" stroke-opacity="0.5" marker-end="url(#m11b-ah)"/>
+                    <rect x="595" y="50" width="135" height="36" rx="9" fill="#0e2018" stroke="#34d399" stroke-width="2" stroke-opacity="0.6"/>
+                    <text x="662" y="73" text-anchor="middle" fill="#34d399" font-family="Inter,sans-serif" font-size="12">✓ agarrar copo</text>
+                    <rect x="595" y="112" width="135" height="36" rx="9" fill="#2a0f16" stroke="#fb7185" stroke-width="2" stroke-opacity="0.5"/>
+                    <text x="662" y="135" text-anchor="middle" fill="#fb7185" font-family="Inter,sans-serif" font-size="12">✗ atravessar mesa</text>
+                </svg>
+                <p class="text-xs text-neutral-500 text-center mt-2">Diagrama ilustrativo — affordance detection separa o que é possível do que é apenas pedido.</p>
+            </div>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-6">
+                <h3 class="text-lg font-semibold text-emerald-400 mb-3">Conceitos-chave</h3>
+                <ul class="space-y-2 text-neutral-300 text-sm">
+                    <li><strong>Visual affordances</strong> — mapeiam regiões da imagem para ações possíveis (superfícies agarráveis, áreas navegáveis).</li>
+                    <li><strong>SayCan (Google)</strong> — combina um LLM que <em>propõe</em> ações com um value function que <em>filtra</em> as fisicamente viáveis.</li>
+                    <li><strong>TAMP</strong> — Task and Motion Planning integra planejamento simbólico com planejamento de movimento contínuo.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- TÓPICO 5 -->
+        <section id="topico-5" class="mb-16">
+            <div class="flex items-center gap-4 mb-6">
+                <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl shrink-0">5</span>
+                <h2 class="text-2xl font-bold">🤖 Embodied AI vs IA desencarnada</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed">A distinção entre IA que vive só no digital (chatbots, geradores de imagem) e IA <strong class="text-emerald-400">incorporada</strong> em corpos físicos que interagem com o mundo real. Trabalhar com VLAs exige mudar a mentalidade: um erro não é uma resposta errada num chat — é uma colisão, uma queda de objeto, um risco de segurança.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                    <h4 class="font-bold text-red-400 mb-4">IA desencarnada</h4>
+                    <ul class="space-y-3 text-neutral-300 text-sm">
+                        <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Erro = resposta errada, reversível</span></li>
+                        <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Sem física, sem latência sensorial</span></li>
+                        <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Pode "tentar de novo" sem custo</span></li>
+                    </ul>
+                </div>
+                <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                    <h4 class="font-bold text-emerald-400 mb-4">Embodied AI</h4>
+                    <ul class="space-y-3 text-neutral-300 text-sm">
+                        <li class="flex items-start gap-2"><span class="text-emerald-400">•</span><span>Erro = colisão, queda, dano — irreversível</span></li>
+                        <li class="flex items-start gap-2"><span class="text-emerald-400">•</span><span>Física newtoniana, desgaste mecânico</span></li>
+                        <li class="flex items-start gap-2"><span class="text-emerald-400">•</span><span>Consequências reais a cada ação</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-6">
+                <h3 class="text-lg font-semibold text-emerald-400 mb-3">Conceitos-chave</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                    <div><strong class="text-emerald-400">Embodiment hypothesis</strong><p class="text-neutral-400 mt-1">Inteligência verdadeira requer um corpo que interaja com o ambiente.</p></div>
+                    <div><strong class="text-emerald-400">Sensorimotor contingencies</strong><p class="text-neutral-400 mt-1">Regularidades entre ações e mudanças sensoriais que o agente aprende.</p></div>
+                    <div><strong class="text-emerald-400">Reality gap</strong><p class="text-neutral-400 mt-1">Descompasso entre simulação e mundo real que dificulta o deploy.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TÓPICO 6 -->
+        <section id="topico-6" class="mb-16">
+            <div class="flex items-center gap-4 mb-6">
+                <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl shrink-0">6</span>
+                <h2 class="text-2xl font-bold">📅 Timeline: de GPT a humanoides autônomos</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed">Em apenas <strong class="text-emerald-400">3 anos</strong> saímos de "LLMs não controlam robôs" para "VLAs generalistas controlam múltiplos embodiments". Conhecer a cronologia ajuda a calibrar expectativas e projetar onde estaremos em 2027–2028.</p>
+
+            <div class="space-y-5 mb-6">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold text-sm">2020</span></div>
+                    <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600">
+                        <h4 class="font-semibold mb-1">GPT-3 e a era dos LLMs</h4>
+                        <p class="text-neutral-400 text-sm">Modelos de linguagem em larga escala mostram capacidades emergentes. Nasce a ideia de "foundation model".</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold text-sm">2023</span></div>
+                    <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600">
+                        <h4 class="font-semibold mb-1">RT-2 (Google DeepMind)</h4>
+                        <p class="text-neutral-400 text-sm">Primeiro VLA de destaque: transfere conhecimento da web para controle robótico real. A ação vira "mais um token".</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold text-sm">2024</span></div>
+                    <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600">
+                        <h4 class="font-semibold mb-1">OpenVLA, π0 e a Physical Intelligence</h4>
+                        <p class="text-neutral-400 text-sm">Open-source democratiza o acesso. Surge a Physical Intelligence (π0). LeRobot e Octo abrem o ecossistema.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-sky-500/20 flex items-center justify-center"><span class="text-sky-400 font-bold text-sm">2026</span></div>
+                    <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600">
+                        <h4 class="font-semibold mb-1">Humanoides autônomos</h4>
+                        <p class="text-neutral-400 text-sm">Figure 02, GR00T e a explosão de startups de robótica. VLAs generalistas controlam múltiplos embodiments.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-6">
+                <h3 class="text-lg font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Conceitos para acompanhar a curva</h3>
+                <p class="text-neutral-300 text-sm"><strong>Scaling laws</strong> investigam se mais dados/parâmetros melhoram o desempenho motor como melhoram linguagem. <strong>Emergent capabilities</strong> são habilidades que surgem com escala sem serem explicitamente treinadas. O ecossistema <strong>open-source</strong> democratiza o que antes exigia labs com milhões em hardware.</p>
+            </div>
+        </section>
+
+        <!-- RESUMO -->
+        <section class="mb-12">
+            <div class="bg-gradient-to-br from-emerald-900/40 via-dark-800 to-dark-800 rounded-xl border border-emerald-500/30 p-8">
+                <h2 class="text-2xl font-bold mb-6 flex items-center"><span class="mr-3">✅</span> Resumo do Módulo</h2>
+                <div class="space-y-4 mb-8">
+                    <div class="flex items-start gap-3"><span class="text-emerald-400 mt-1">✓</span><div><strong>LLM → VLM → VLA</strong><span class="text-neutral-400"> — cada salto adiciona uma modalidade; o VLA adiciona a ação na saída.</span></div></div>
+                    <div class="flex items-start gap-3"><span class="text-emerald-400 mt-1">✓</span><div><strong>O gap entender→agir</strong><span class="text-neutral-400"> — entender uma cena não é o mesmo que executar um movimento; é o problema central do VLA.</span></div></div>
+                    <div class="flex items-start gap-3"><span class="text-emerald-400 mt-1">✓</span><div><strong>Foundation models</strong><span class="text-neutral-400"> — pré-treino massivo + fine-tuning é o que tornou VLAs viáveis.</span></div></div>
+                    <div class="flex items-start gap-3"><span class="text-emerald-400 mt-1">✓</span><div><strong>Affordances e embodiment</strong><span class="text-neutral-400"> — agir no mundo físico tem consequências reais e exige avaliar viabilidade.</span></div></div>
+                </div>
+                <div class="bg-dark-800/50 rounded-lg p-4 mb-8">
+                    <h3 class="font-semibold text-emerald-400 mb-2">Próximo módulo</h3>
+                    <p class="text-neutral-300">1.2 — Anatomia de um VLA: Visão + Linguagem + Ação</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="./" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Voltar para a Trilha</a>
+                    <a href="modulo-1-2.html" class="flex-1 text-center px-6 py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-500 transition-colors">Próximo módulo →</a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="border-t border-dark-600 py-8">
+        <div class="max-w-6xl mx-auto px-4 text-center text-neutral-500 text-sm">
+            <p>VLA Course — Vision-Language-Action · <a href="https://inema.club" target="_blank" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a></p>
+        </div>
+    </footer>
+
+</body>
+</html>
